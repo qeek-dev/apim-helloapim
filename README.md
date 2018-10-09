@@ -1,2 +1,2 @@
-# apim-console
-admin console for apim
+# apim-helloqpkg 
+A demo qpkg for apim
