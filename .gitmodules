@@ -1,0 +1,4 @@
+[submodule "qdk-docker/QDK"]
+	path = qdk-docker/QDK
+	url = https://github.com/qeek-dev/QDK
+	branch = apim/master
