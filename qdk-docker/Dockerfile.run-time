@@ -2,10 +2,13 @@ FROM qeekdev/qdk-docker:2.3.4-buildstage as build-stage
 FROM ubuntu:18.04
 
 COPY QDK/shared /usr/local/QDK
+
 COPY --from=build-stage /usr/local/QDK/bin/qpkg_encrypt /usr/local/QDK/bin/
 COPY --from=build-stage /etc/config /etc/config
 
-RUN apt-get remove --purge -yq && \
+RUN apt-get update && \
+    apt-get install -y rsync && \
+    apt-get remove --purge -yq && \
     apt-get autoclean -y && \
     apt-get autoremove -y && \
     rm -rf /var/lib/{cache,log}/ && \
