@@ -1,0 +1,18 @@
+{
+    "name": "hello",
+    "my_acl_group": "hello-group",
+    "apis": [
+        {
+        "uri_prefix": "/hello",
+        "api_url": "/hello",
+        "api_port": 9600,
+        "is_allow_qnap": true,
+        "is_allow_3rd_party": false
+        },
+        {
+        "uri_prefix": "/hello/socket.io",
+        "api_url": "/socket.io",
+        "api_port": 9601
+        }
+    ]
+}
