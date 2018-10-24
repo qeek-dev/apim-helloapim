@@ -122,11 +122,11 @@ function web_hosting()
 function backend_server()
 {
   app_log "[ $FUNCNAME $@ ] ..."
-  local _pidfile="${QPKG_TMP}/backend.pid"
+  local _pidfile="${QPKG_TMP}/httapi.pid"
 
   case "$1" in
   start)
-    python $QPKG_ROOT/server/BackendServer.py 0.0.0.0 13000 1>>$QPKG_LOG_FILE 2>&1 &
+    python $QPKG_ROOT/server/HelloAPI.py 0.0.0.0 13000 1>>$QPKG_LOG_FILE 2>&1 &
     ret=$?
     echo $! > ${_pidfile}
     if [ "$ret" == "0" ]; then

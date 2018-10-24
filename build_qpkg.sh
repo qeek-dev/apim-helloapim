@@ -1,11 +1,13 @@
 #!/bin/bash
 
-RED=`tput setaf 1`
-GREEN=`tput setaf 2`
-YELLOW=`tput setaf 3`
-MAGENTA=`tput setaf 5`
-RESET=`tput sgr0`
+#############################################################################
+# QDK in the docker
+QDK_DOCKER_USERNAME=qeekdev
+QDK_DOCKER_NAME=qdk-docker
+QDK_DOCKER_VERSION=2.3.4-apim
+QDK_DOKCER_IMAGE="${QDK_DOCKER_USERNAME}/${QDK_DOCKER_NAME}:${QDK_DOCKER_VERSION}"
 
+#############################################################################
 local_path=`pwd`
 QPKG_NAME="helloqpkg"
 # working directory for collect the source of each repo and qdk build root
@@ -14,6 +16,14 @@ WORKING=${local_path}/working
 WORKING_QPKG_ROOT=${WORKING}/workspace/${QPKG_NAME}
 # the build of qpkg file after qbuild in the container
 WORKING_QPKG_DIST=${WORKING}/release_qpkg
+
+#############################################################################
+# Log text with color in the terminal
+RED=`tput setaf 1`
+GREEN=`tput setaf 2`
+YELLOW=`tput setaf 3`
+MAGENTA=`tput setaf 5`
+RESET=`tput sgr0`
 
 function log()
 {
@@ -66,8 +76,14 @@ function init_qdk_working() {
 function build_source() {
   log "[ $FUNCNAME $@ ] start ..."
 
-  exec_err cp -r ${local_path}/source/app ${WORKING_QPKG_ROOT}/shared/
-  exec_err cp -r ${local_path}/source/web ${WORKING_QPKG_ROOT}/shared/
+  # deploy qpkg start script
+  exec_err cp -r ${local_path}/src/init.d/. ${WORKING_QPKG_ROOT}/shared/
+  # deploy backend program
+  exec_err cp -r ${local_path}/src/server ${WORKING_QPKG_ROOT}/shared
+  # deploy frontend program
+  exec_err cp -r ${local_path}/src/web ${WORKING_QPKG_ROOT}/shared
+  # deploy qpkg asset
+  exec_err cp -r ${local_path}/src/asset/qpkg/. ${WORKING_QPKG_ROOT}/
 
   log "[ $FUNCNAME $@ ] done ..."
 }
@@ -90,24 +106,18 @@ function compile_qpkg() {
   local CPU_ARCH=$1
   local QPKG_VERSION=${2}
   local QPKG_FILE="${QPKG_NAME}_${QPKG_VERSION}_${CPU_ARCH}_${BUILD_DATE}"
-
-  local BUILDER_USERNAME=qeekdev
-  local BUILDER_NAME=qdk-docker
-  local BUILDER_VERSION=2.3.4-apim
-  local BUILDER_DOKCER="${BUILDER_USERNAME}/${BUILDER_NAME}:${BUILDER_VERSION}"
   local HOSTDIR=${WORKING}
-  local CONTAINER_NAME=${BUILDER_NAME}-`date +%s`
+  local CONTAINER_NAME=${QDK_DOCKER_NAME}-`date +%s`
   local BUILDER_OPTS="\
       --net=host \
       --rm \
-      -e PNAME=${BUILDER_NAME}-$1-builder-`date +%s` \
       -e \"TZ=Asia/Taipei\" \
       -u root \
       -w /root \
       -v ${HOSTDIR}:/root/working \
       --name=${CONTAINER_NAME}"
 
-  docker run $BUILDER_OPTS $BUILDER_DOKCER bash -c "\
+  docker run $BUILDER_OPTS $QDK_DOKCER_IMAGE bash -c "\
     cd /root/working/workspace/${QPKG_NAME} && \
     qbuild --build-arch ${CPU_ARCH} --build-version ${QPKG_VERSION} && \
     mv /root/working/workspace/${QPKG_NAME}/build/${QPKG_NAME}_${QPKG_VERSION}_${CPU_ARCH}.qpkg \
@@ -136,7 +146,7 @@ function install_qpkg() {
 }
 
 
-function _build_() {
+function build_qpkg() {
   log "[ $FUNCNAME $@ ] start ..."
   CPU_ARCH=${1}
   QPKG_VERSION=${2}
@@ -158,6 +168,15 @@ function _build_() {
 }
 
 
+function requirements() {
+  command -v docker >/dev/null 2>&1 || log_err_exit "Require \"docker\" but it's not installed.  Aborting."
+  command -v git >/dev/null 2>&1 || log_err_exit "Require \"git\" but it's not installed.  Aborting."
+  git submodule update --init QDK
+  if [[ "$(docker images -q ${QDK_DOKCER_IMAGE} 2>/dev/null)" == "" ]]; then
+    docker build -t ${QDK_DOKCER_IMAGE}.buildstage -f ./qdk-docker/Dockerfile.build-stage .
+    docker build -t ${QDK_DOKCER_IMAGE} -f ./qdk-docker/Dockerfile.run-time .
+  fi
+}
 ##################################################################################################
 
 log "*** build qpkg ${1} start. ***"
@@ -173,7 +192,8 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
-_build_ "${1}" "${2}" "${3}" "${4}"
+requirements
+build_qpkg "${1}" "${2}" "${3}" "${4}"
 
 log "*** build qpkg ${1} done. ***"
 

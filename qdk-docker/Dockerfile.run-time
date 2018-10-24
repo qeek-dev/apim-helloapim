@@ -1,11 +1,9 @@
-FROM qeekdev/qdk-docker:2.3.4-buildstage as build-stage
+FROM qeekdev/qdk-docker:2.3.4-apim.buildstage as build-stage
 FROM ubuntu:18.04
 
-COPY QDK/shared /usr/local/QDK
+COPY --from=build-stage /usr/local/QDK/bin/qpkg_encrypt /usr/bin/
 
-COPY --from=build-stage /usr/local/QDK/bin/qpkg_encrypt /usr/local/QDK/bin/
-COPY --from=build-stage /etc/config /etc/config
-
+# install QDK requirement package: rsync
 RUN apt-get update && \
     apt-get install -y rsync && \
     apt-get remove --purge -yq && \
@@ -16,8 +14,6 @@ RUN apt-get update && \
     rm -rf /tmp/* /var/tmp/* && \
     rm -rf /usr/share/doc/ && \
     rm -rf /usr/share/man/
-
-ENV PATH="$PATH:/usr/local/QDK/bin"
 
 CMD ["/bin/bash"]
 

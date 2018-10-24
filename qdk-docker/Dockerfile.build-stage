@@ -4,5 +4,5 @@ COPY QDK /root/QDK
 RUN cd /root/QDK && \
     ./InstallToUbuntu.sh install
 
-ENTRYPOINT ["/bin/bash"]
+CMD ["/bin/bash"]
 
