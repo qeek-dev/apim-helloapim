@@ -13,9 +13,9 @@ QPKG_NAME="helloqpkg"
 # working directory for collect the source of each repo and qdk build root
 WORKING=${local_path}/working
 # staging directory that collect all qpkg and qdk files in the qpkg build time
-WORKING_QPKG_ROOT=${WORKING}/workspace/${QPKG_NAME}
+WORKING_QPKG_ROOT=${WORKING}/${QPKG_NAME}
 # the build of qpkg file after qbuild in the container
-WORKING_QPKG_DIST=${WORKING}/release_qpkg
+WORKING_QPKG_DIST=${local_path}/release
 
 #############################################################################
 # Log text with color in the terminal
@@ -72,16 +72,70 @@ function init_qdk_working() {
   log "[ $FUNCNAME $@ ] done ..."
 }
 
+function _build_backend_server() {
+  log "[ $FUNCNAME $@ ] start ..."
+
+
+  local CPU_ARCH=$1
+  local SOURCE_DIR=$2
+  local DIST_DIR=$3
+  local DIST_FILENAME=$4
+  local GOLANG_DOKCER_IMAGE=golang:1.11.1-alpine3.8
+  local CONTAINER_NAME=golang-1.11.1-builder-`date +%s`
+  local BUILDER_OPTS="\
+      --net=host \
+      --rm \
+      -e \"TZ=Asia/Taipei\" \
+      -u root \
+      -w /go \
+      -v ${SOURCE_DIR}:/go/src/server \
+      -v ${DIST_DIR}:/root/dist \
+      --name=${CONTAINER_NAME}"
+
+  case "$CPU_ARCH" in
+    arm_64)
+      GOARCH=arm64
+      ;;
+    arm-x19|arm-x31|arm-x41)
+      GOARCH=arm
+      ;;
+    x86|x86_ce53xx)
+      GOARCH=386
+      ;;
+    x86_64)
+      GOARCH=amd64
+      ;;
+  esac
+
+  docker run $BUILDER_OPTS $GOLANG_DOKCER_IMAGE sh -c "\
+    apk add --no-cache --virtual git && \
+    cd /go/src/server && \
+    export GO111MODULE=on && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -a -tags netgo -ldflags \"-s -w\" -o /root/dist/${DIST_FILENAME} .
+  "
+  [ $? != "0" ] && log_err_exit "[ $FUNCNAME $@ ] fail ..."
+  log "[ $FUNCNAME $@ ] done ..."
+}
+
 # install the helloqpkg program to qpkg working directory
 function build_source() {
   log "[ $FUNCNAME $@ ] start ..."
-
+  local CPU_ARCH=$1
   # deploy qpkg start script
   exec_err cp -r ${local_path}/src/init.d/. ${WORKING_QPKG_ROOT}/shared/
-  # deploy backend program
-  exec_err cp -r ${local_path}/src/server ${WORKING_QPKG_ROOT}/shared
+
+  # complie & deploy backend program
+  exec_err mkdir -p ${WORKING_QPKG_ROOT}/shared/server
+  _build_backend_server \
+    "${CPU_ARCH}" \
+    "${local_path}/src/server" \
+    "${WORKING_QPKG_ROOT}/shared/server" \
+    "helloqpkg-backend"
+
   # deploy frontend program
   exec_err cp -r ${local_path}/src/web ${WORKING_QPKG_ROOT}/shared
+
   # deploy qpkg asset
   exec_err cp -r ${local_path}/src/asset/qpkg/. ${WORKING_QPKG_ROOT}/
 
@@ -94,8 +148,6 @@ function compile_qpkg() {
 
   cd ${local_path}
   local _qpkg_build_num=`git rev-list HEAD --count`
-
-  cd ${WORKING}
   local _build_revision="${_qpkg_build_num}"
 
   # save source code revision and arch into qpkg
@@ -106,7 +158,7 @@ function compile_qpkg() {
   local CPU_ARCH=$1
   local QPKG_VERSION=${2}
   local QPKG_FILE="${QPKG_NAME}_${QPKG_VERSION}_${CPU_ARCH}_${BUILD_DATE}"
-  local HOSTDIR=${WORKING}
+  local HOSTDIR=${local_path}
   local CONTAINER_NAME=${QDK_DOCKER_NAME}-`date +%s`
   local BUILDER_OPTS="\
       --net=host \
@@ -114,19 +166,19 @@ function compile_qpkg() {
       -e \"TZ=Asia/Taipei\" \
       -u root \
       -w /root \
-      -v ${HOSTDIR}:/root/working \
+      -v ${HOSTDIR}:/root/tmp \
       --name=${CONTAINER_NAME}"
 
   docker run $BUILDER_OPTS $QDK_DOKCER_IMAGE bash -c "\
-    cd /root/working/workspace/${QPKG_NAME} && \
+    cd /root/tmp/working/${QPKG_NAME} && \
     qbuild --build-arch ${CPU_ARCH} --build-version ${QPKG_VERSION} && \
-    mv /root/working/workspace/${QPKG_NAME}/build/${QPKG_NAME}_${QPKG_VERSION}_${CPU_ARCH}.qpkg \
-        /root/working/release_qpkg/${QPKG_FILE}.qpkg && \
-    mv /root/working/workspace/${QPKG_NAME}/build/${QPKG_NAME}_${QPKG_VERSION}_${CPU_ARCH}.qpkg.md5 \
-        /root/working/release_qpkg/${QPKG_FILE}.qpkg.md5 \
+    mv /root/tmp/working/${QPKG_NAME}/build/${QPKG_NAME}_${QPKG_VERSION}_${CPU_ARCH}.qpkg \
+        /root/tmp/release/${QPKG_FILE}.qpkg && \
+    mv /root/tmp/working/${QPKG_NAME}/build/${QPKG_NAME}_${QPKG_VERSION}_${CPU_ARCH}.qpkg.md5 \
+        /root/tmp/release/${QPKG_FILE}.qpkg.md5 \
     "
-  [ $? != "0" ] && log_err_exit "build qpkg fail"
-  log_info "QPKG here => ./working/release_qpkg/$QPKG_FILE.qpkg"
+  [ $? != "0" ] && log_err_exit "[ $FUNCNAME $@ ] fail ..."
+  log_info "QPKG here => ./release/$QPKG_FILE.qpkg"
   log "[ $FUNCNAME $@ ] done ..."
 }
 
@@ -154,12 +206,12 @@ function build_qpkg() {
   NAS_PASSWD=${4}
 
   init_qdk_working
-  build_source
+  build_source "${CPU_ARCH}"
   compile_qpkg "${CPU_ARCH}" "${QPKG_VERSION}"
 
   if [ ! -z "${NAS_IP}" ]; then
     # get last qpkg file name by modify time.
-    gen_file=`ls ${WORKING_QPKG_DIST}/*.qpkg | sort -r | head -1`
+    gen_file=`ls ${WORKING_QPKG_DIST}/*${CPU_ARCH}*.qpkg | sort -r | head -1`
     install_qpkg ${gen_file} ${NAS_IP} ${NAS_PASSWD}
   else
     log_info "missing param \$3 nas ip.. skip install qpkg"

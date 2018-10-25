@@ -1,18 +1,18 @@
 {
-    "name": "hello",
+    "name": "helloqpkg",
     "my_acl_group": "hello-group",
     "apis": [
         {
-        "uri_prefix": "/hello",
-        "api_url": "/hello",
-        "api_port": 9600,
+        "uri_prefix": "/helloqpkg/v1",
+        "api_url": "/v1",
+        "api_port": 13000,
         "is_allow_qnap": true,
         "is_allow_3rd_party": false
         },
         {
-        "uri_prefix": "/hello/socket.io",
+        "uri_prefix": "/helloqpkg/socket.io",
         "api_url": "/socket.io",
-        "api_port": 9601
+        "api_port": 130001
         }
     ]
 }

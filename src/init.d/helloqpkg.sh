@@ -126,7 +126,7 @@ function backend_server()
 
   case "$1" in
   start)
-    python $QPKG_ROOT/server/HelloAPI.py 0.0.0.0 13000 1>>$QPKG_LOG_FILE 2>&1 &
+    $QPKG_ROOT/server/helloqpkg-backend 1>>$QPKG_LOG_FILE 2>&1 &
     ret=$?
     echo $! > ${_pidfile}
     if [ "$ret" == "0" ]; then
@@ -157,6 +157,7 @@ function qpkg_env()
   QPKG_TMP="${QPKG_ROOT}/tmp"
   QPKG_LOG_FILE="${QPKG_TMP}/${QPKG_NAME}_sh.log"
 
+  [ ! -d ${QPKG_TMP} ] && $CMD_MKDIR ${QPKG_TMP}
   export QNAP_QPKG=$QPKG_NAME
   app_log "PWD: `pwd`"
   app_log "PATH: $PATH"
