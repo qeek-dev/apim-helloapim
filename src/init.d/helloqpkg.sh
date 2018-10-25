@@ -99,18 +99,15 @@ function web_hosting()
   case "$1" in
   start)
     if [ ! -L "$QPKG_APPWEB_LN_PATH" ]; then
-      app_log "  make web soft link"
       exec_err $CMD_LN -sf $QPKG_APPWEB_ROOT_PATH $QPKG_APPWEB_LN_PATH
     elif [ ! -e "$QPKG_APPWEB_LN_PATH" ]; then
-      # handle qpkg install volume changed
-      app_log "  install path changed, fix web soft link"
+      # handle qpkg install volume changed and install path changed, fix web soft link"
       exec_err $CMD_RM $QPKG_APPWEB_LN_PATH
       exec_err $CMD_LN -sf $QPKG_APPWEB_ROOT_PATH $QPKG_APPWEB_LN_PATH
     fi
     ;;
   stop)
     if [ -L "$QPKG_APPWEB_LN_PATH" ]; then
-      app_log "remove web soft link [$QPKG_APPWEB_LN_PATH]"
       exec_err $CMD_RM $QPKG_APPWEB_LN_PATH
     fi
     ;;
@@ -137,12 +134,17 @@ function backend_server()
     cd $QPKG_ROOT
     ;;
   stop)
-    kill $(cat ${_pidfile}) &>/dev/null
-    ret=$?
-    if [ "$ret" == "0" ]; then
-      app_log "[ $FUNCNAME $@ ] ... done"
+    # handle mutli stop when qpkg upgrade
+    kill -0 $(cat ${_pidfile}) 2>/dev/null
+    if [ "$?" == "0" ]; then
+      kill $(cat ${_pidfile}) &>/dev/null
+      if [ "$?" == "0" ]; then
+        app_log "[ $FUNCNAME $@ ] ... done"
+      else
+        app_err_log "[ $FUNCNAME $@ ] ... fail"
+      fi
     else
-      app_err_log "[ $FUNCNAME $@ ] ... fail"
+      app_log "[ $FUNCNAME $@ ] process not exist... done"
     fi
     [ -f ${_pidfile} ] && rm ${_pidfile}
     ;;
