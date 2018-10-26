@@ -36,11 +36,15 @@ var addr = flag.String("addr", "0.0.0.0:13000", "http service address")
 var people []Person
 
 func getPeople(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(w).Encode(people)
 }
 
 func getPerson(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	for _, item := range people {
 		if item.ID == params["id"] {
 			json.NewEncoder(w).Encode(item)
@@ -56,6 +60,8 @@ func createPerson(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&person)
 	person.ID = params["id"]
 	people = append(people, person)
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(w).Encode(people)
 }
 
@@ -66,6 +72,8 @@ func deletePerson(w http.ResponseWriter, r *http.Request) {
 			people = append(people[:index], people[index+1:]...)
 			break
 		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		json.NewEncoder(w).Encode(people)
 	}
 }
@@ -96,9 +104,19 @@ func echo(w http.ResponseWriter, r *http.Request) {
 func main() {
 	flag.Parse()
 
-	router := mux.NewRouter()
+	// Sample record
 	people = append(people, Person{ID: "1", Firstname: "John", Lastname: "Doe", Address: &Address{City: "City X", State: "State X"}})
 	people = append(people, Person{ID: "2", Firstname: "Koko", Lastname: "Doe", Address: &Address{City: "City Z", State: "State Y"}})
+
+	router := mux.NewRouter()
+
+	// Handle all preflight request
+	router.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		return
+	})
 	router.HandleFunc("/v1/echo", echo)
 	router.HandleFunc("/v1/people", getPeople).Methods("GET")
 	router.HandleFunc("/v1/people/{id}", getPerson).Methods("GET")
