@@ -21,17 +21,17 @@
             //port = location.port;
             ws = new WebSocket('ws://' + document.domain + ':' + port + '/v1/echo');
             ws.onopen = function(evt) {
-                print("OPEN");
+                print("Websocket OPEN");
             }
             ws.onclose = function(evt) {
-                print("CLOSE");
+                print("Websocket CLOSE");
                 ws = null;
             }
             ws.onmessage = function(evt) {
-                print("RESPONSE: " + evt.data);
+                print("Websocket RESPONSE: " + evt.data);
             }
             ws.onerror = function(evt) {
-                print("ERROR: " + evt.data);
+                print("Websocket ERROR: " + evt.data);
             }
             return;
         });
@@ -47,7 +47,7 @@
             if (!ws) {
                 return;
             }
-            print("SEND: " + input.value);
+            print("Websocket SEND: " + input.value);
             ws.send(input.value);
         });
 
@@ -84,7 +84,7 @@ You can change the message and send multiple times.
 <button id="close">Close</button>
 <p><input id="input" type="text" value="Hello world!">
 <button id="send">Send</button>
-<p>Click "Get People" to get the people list by HTTP API from server
+<p>Click "Get first people" to get the first people information by HTTP API from server
 <p>
 <button id="getPeople">Get First People</button>
 <p></p>

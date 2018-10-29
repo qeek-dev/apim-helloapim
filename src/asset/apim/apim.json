@@ -1,0 +1,28 @@
+{
+    "name": "helloqpkg",
+    "applicaton": {
+        "my_acl_group": "helloqpkg-group",
+        "apis": [
+            {
+            "uri_prefix": "/helloqpkg/v1",
+            "api_url": "/v1",
+            "api_port": 13000,
+            "is_allow_qnap": true,
+            "is_allow_3rd_party": false
+            },
+            {
+            "uri_prefix": "/helloqpkg/v1/echo",
+            "api_url": "/v1/echo",
+            "api_port": 130000,
+            "is_allow_qnap": true
+            }
+        ]
+    },
+    "comsumer": [
+        {
+            "name": "helloqpkg-webclient",
+            "apikey": "helloqpkg-123",
+            "my_acl_group": "helloqpkg-group"
+        }
+    ]
+}
