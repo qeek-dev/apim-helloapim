@@ -1,0 +1,8 @@
+FROM ubuntu:18.04
+
+COPY QDK /root/QDK
+RUN cd /root/QDK && \
+    ./InstallToUbuntu.sh install
+
+CMD ["/bin/bash"]
+
