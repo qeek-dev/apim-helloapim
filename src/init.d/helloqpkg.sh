@@ -196,8 +196,16 @@ case "$1" in
     ;;
 
   *)
-    echo "Usage: $0 {start|stop|restart}"
-    exit 1
+    if [ "$1" != "" ]; then
+      app_log  "$0 $1 -- in"
+      $1 $2 $3 $4;
+      app_log  "$0 $1 -- done"
+    else
+      echo ""
+      echo "Usage: $0 {start|stop|restart|qpkg_env}"
+      echo ""
+    fi
+    ;;
 esac
 
 exit 0

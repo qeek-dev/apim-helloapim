@@ -250,7 +250,7 @@ function build_qpkg() {
   local NAS_PASSWD=${4}
 
   init_qdk_working
-  build_apim_json "${NAS_IP}" "${NAS_PASSWD}"
+  #build_apim_json "${NAS_IP}" "${NAS_PASSWD}"
   build_source "${CPU_ARCH}"
   compile_qpkg "${CPU_ARCH}" "${QPKG_VERSION}"
 
