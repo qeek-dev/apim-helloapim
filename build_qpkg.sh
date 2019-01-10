@@ -301,9 +301,9 @@ function dev_version() {
   cd ${local_path}
   local _core_build_num=`git rev-list HEAD --count`
   cd ${local_path}/QDK
-  local _qdk_num=`git rev-list HEAD --count`
+  local _qdk_build_num=`git rev-list HEAD --count`
 
-  local _res="0.${_core_build_num}.${_qdk_num}"
+  local _res="0.${_core_build_num}.${_qdk_build_num}"
   echo $_res
 }
 
