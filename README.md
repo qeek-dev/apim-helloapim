@@ -7,7 +7,7 @@ This is a qpkg demo how to integrate the API Manager.
 * The NAS installed the API Manager.
 
 # How to build qpkg and install to NAS.
-Run the `./build_qpkg.sh` script. It will build the `helloqpkg` qpkg and install it to the NAS.
+Run the `./build_qpkg.sh` script in the build machine. It will build the `helloqpkg` qpkg and install it to the NAS.
 ```
 ./build_qpkg.sh {CPU_ARCH} {QPKG_VERSION} {NAS_IP} {NAS_PASSWD}
 ex: ./build_qpkg.sh x86_64 0.1 192.168.0.10 passw0rd
