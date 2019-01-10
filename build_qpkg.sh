@@ -132,7 +132,7 @@ function _build_backend_server() {
   log "[ $FUNCNAME $@ ] done ..."
 }
 
-# install the helloapim program to qpkg working directory
+# build and install the program to qdk working directory
 function build_source() {
   log "[ $FUNCNAME $@ ] start ..."
   local CPU_ARCH=$1
@@ -145,7 +145,7 @@ function build_source() {
     "${CPU_ARCH}" \
     "${local_path}/src/server" \
     "${WORKING_QPKG_ROOT}/shared/server" \
-    "helloapim-backend"
+    "${QPKG_NAME}-backend"
 
   # deploy frontend program
   exec_err cp -r ${local_path}/src/web ${WORKING_QPKG_ROOT}/shared
@@ -234,7 +234,7 @@ function install_qpkg() {
   log "[ $FUNCNAME $@ ] start ..."
   local QPKG_FILE=$1
   local RHOST=$2
-  local SHORT_QPKG="helloapim.qpkg"
+  local SHORT_QPKG="${QPKG_NAME}.qpkg"
   [ ! -f "$QPKG_FILE" ] && log_err_exit "missing qpk file to install to NAS ($RHOST)"
   [ ! -z "$3" ] && SSHPASS_CMD="sshpass -p $3"
 
@@ -264,7 +264,7 @@ function build_qpkg() {
 
   if [ ! -z "${NAS_IP}" ]; then
     # get last qpkg file name by modify time.
-    gen_file=`ls ${WORKING_QPKG_DIST}/*${CPU_ARCH}*.qpkg | sort -r | head -1`
+    gen_file=`ls ${WORKING_QPKG_DIST}/${QPKG_NAME}*${CPU_ARCH}*.qpkg | sort -r | head -1`
     install_qpkg ${gen_file} ${NAS_IP} ${NAS_PASSWD}
   else
     log_info "missing param \$3 nas ip.. skip install qpkg"
