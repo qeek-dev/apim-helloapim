@@ -164,7 +164,7 @@ function build_apim_json() {
   local _sshparam="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
   local _apim_json="${local_path}/src/asset/apim/apim.json"
   local _md5sum="md5"
-  command -v ${_md5sum} >/dev/null 2>&1 || _md5sum = "md5sum"
+  command -v ${_md5sum} >/dev/null 2>&1 || _md5sum="md5sum"
   local _uuid=$(date | ${_md5sum} | head -c8)
   local _tmp_json="apim${_uuid}.json"
 
