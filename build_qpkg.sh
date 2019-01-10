@@ -9,7 +9,7 @@ QDK_DOKCER_IMAGE="${QDK_DOCKER_USERNAME}/${QDK_DOCKER_NAME}:${QDK_DOCKER_VERSION
 
 #############################################################################
 local_path=`pwd`
-QPKG_NAME="helloqpkg"
+QPKG_NAME="helloapim"
 # working directory for collect the source of each repo and qdk build root
 WORKING=${local_path}/working
 # staging directory of QDK source code
@@ -132,7 +132,7 @@ function _build_backend_server() {
   log "[ $FUNCNAME $@ ] done ..."
 }
 
-# install the helloqpkg program to qpkg working directory
+# install the helloapim program to qpkg working directory
 function build_source() {
   log "[ $FUNCNAME $@ ] start ..."
   local CPU_ARCH=$1
@@ -145,7 +145,7 @@ function build_source() {
     "${CPU_ARCH}" \
     "${local_path}/src/server" \
     "${WORKING_QPKG_ROOT}/shared/server" \
-    "helloqpkg-backend"
+    "helloapim-backend"
 
   # deploy frontend program
   exec_err cp -r ${local_path}/src/web ${WORKING_QPKG_ROOT}/shared
@@ -234,7 +234,7 @@ function install_qpkg() {
   log "[ $FUNCNAME $@ ] start ..."
   local QPKG_FILE=$1
   local RHOST=$2
-  local SHORT_QPKG="helloqpkg.qpkg"
+  local SHORT_QPKG="helloapim.qpkg"
   [ ! -f "$QPKG_FILE" ] && log_err_exit "missing qpk file to install to NAS ($RHOST)"
   [ ! -z "$3" ] && SSHPASS_CMD="sshpass -p $3"
 

@@ -1,23 +1,23 @@
 {
     "api_ver": "1.0.0",
-    "name": "helloqpkg",
+    "name": "helloapim",
     "consumers": [
         {
             "credential": "key123",
-            "name": "helloqpkg webclient"
+            "name": "helloapim webclient"
         },
         {
             "credential": "key456",
-            "name": "helloqpkg mobile client"
+            "name": "helloapim mobile client"
         }
     ],
     "proxys": [
         {
             "auth_type": "KEY",
             "service_port": 13000,
-            "route_prefix": "/helloqpkg/v1",
+            "route_prefix": "/helloapim/v1",
             "apidoc_url": "http://127.0.0.1:13000/apidoc/index.yaml",
-            "name": "hello qpkg http api v1",
+            "name": "hello apim http api v1",
             "service_path": "/v1",
             "health_check_port": 13000,
             "health_check_path": "/v1/healthcheck"
@@ -25,9 +25,9 @@
         {
             "auth_type": "KEY",
             "service_port": 13000,
-            "route_prefix": "/helloqpkg/v1/echo",
+            "route_prefix": "/helloapim/v1/echo",
             "apidoc_url": "http://127.0.0.1:13000/apidoc/index.yaml",
-            "name": "hello qpkg websocket api v1",
+            "name": "hello apim websocket api v1",
             "service_path": "/v1/echo",
             "health_check_port": 13000,
             "health_check_path": "/v1/ws_healthcheck"
