@@ -123,7 +123,7 @@ function backend_server()
 
   case "$1" in
   start)
-    $QPKG_ROOT/server/helloqpkg-backend 1>>$QPKG_LOG_FILE 2>&1 &
+    $QPKG_ROOT/server/helloapim-backend 1>>$QPKG_LOG_FILE 2>&1 &
     ret=$?
     echo $! > ${_pidfile}
     if [ "$ret" == "0" ]; then
@@ -154,7 +154,7 @@ function backend_server()
 function qpkg_env()
 {
   QPKG_CONF=/etc/config/qpkg.conf
-  QPKG_NAME="helloqpkg"
+  QPKG_NAME="helloapim"
   QPKG_ROOT=`/sbin/getcfg $QPKG_NAME Install_Path -f ${QPKG_CONF}`
   QPKG_TMP="${QPKG_ROOT}/tmp"
   QPKG_LOG_FILE="${QPKG_TMP}/${QPKG_NAME}_sh.log"

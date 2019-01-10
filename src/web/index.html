@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8">
-<title> APIM example - helloqpkg </title>
+<title> APIM example QPKG - helloapim </title>
 <script type="text/javascript" src="//code.jquery.com/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" charset="utf-8">
     $(document).ready(function(){
@@ -19,7 +19,7 @@
             if (ws) {
                 return;
             }
-            ws = new WebSocket('ws://' + document.domain + ':' + port + '/helloqpkg/v1/echo?' + apim_key);
+            ws = new WebSocket('ws://' + document.domain + ':' + port + '/helloapim/v1/echo?' + apim_key);
             ws.onopen = function(evt) {
                 print("Websocket OPEN");
             }
@@ -53,7 +53,7 @@
 
         $("#getPeople").click(function() {
             $.ajax({
-                url: 'http://' + document.domain + ':' + port + '/helloqpkg/v1/people/1?' + apim_key,
+                url: 'http://' + document.domain + ':' + port + '/helloapim/v1/people/1?' + apim_key,
                 type: "GET",
                 crossDomain: true,
                 headers: {
@@ -75,9 +75,9 @@
 </script>
 </head>
 <body>
-<h1>Hello QPKG API test page</h1>
-<p>Click "Open" to create a connection to the websocket server, 
-"Send" to send a message to the server and "Close" to close the connection. 
+<h1>Hello APIM: HTTP API / Websocket test page</h1>
+<p>Click "Open" to create a connection to the websocket server,
+"Send" to send a message to the server and "Close" to close the connection.
 You can change the message and send multiple times.
 <p>
 <button id="open">Open</button>
