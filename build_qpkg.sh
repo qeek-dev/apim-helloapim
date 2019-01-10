@@ -303,7 +303,7 @@ function dev_version() {
 
 log "*** build qpkg ${1} start. ***"
 
-if [ ! $# -eq 0 ]; then
+if [ $# -eq 0 ]; then
   echo ""
   echo ""
   echo "./${0} {CPU_ARCH} {NAS_IP} {NAS_PASSWD} {QPKG_VERSION} "
