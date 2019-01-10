@@ -156,7 +156,7 @@ function build_source() {
   log "[ $FUNCNAME $@ ] done ..."
 }
 
-# encrypt apim json by sr-cli in the remote NAS that install with apim qpkg. 
+# encrypt apim json by sr-cli in the remote NAS that install with apim qpkg.
 function build_apim_json() {
   log "[ $FUNCNAME $@ ] start ..."
   local _ip=${1}
@@ -249,9 +249,13 @@ function install_qpkg() {
 function build_qpkg() {
   log "[ $FUNCNAME $@ ] start ..."
   local CPU_ARCH=${1}
-  local QPKG_VERSION=${2}
-  local NAS_IP=${3}
-  local NAS_PASSWD=${4}
+  local NAS_IP=${2}
+  local NAS_PASSWD=${3}
+  local QPKG_VERSION=${4}
+
+  if [[ {QPKG_VERSION} == "" ]]; then
+    QPKG_VERSION=$(dev_version)
+  fi
 
   init_qdk_working
   build_apim_json "${NAS_IP}" "${NAS_PASSWD}"
@@ -291,13 +295,21 @@ function requirements() {
 }
 ##################################################################################################
 
+function dev_version() {
+  local _core_build_num=`git rev-list HEAD --count`
+  local _res="0.0.${_core_build_num}"
+  echo $_res
+}
+
 log "*** build qpkg ${1} start. ***"
 
 if [ ! $# -eq 4 ]; then
   echo ""
   echo ""
-  echo "./${0} {CPU_ARCH} {QPKG_VERSION} {NAS_IP} {NAS_PASSWD}"
-  echo "ex: ./${0} x86_64 0.1 192.168.0.10 passw0rd"
+  echo "./${0} {CPU_ARCH} {NAS_IP} {NAS_PASSWD} {QPKG_VERSION} "
+  echo "ex: ./${0} x86_64 192.168.0.10 passw0rd 0.1"
+  echo "  if no {QPKG_VERSION}, will generate a dev verison number. "
+  echo "ex: ./${0} x86_64 192.168.0.10 passw0rd"
   echo "CPU_ARCH: x86_64, arm_64, arm-x41, arm-x31 ..."
   echo ""
   echo ""
