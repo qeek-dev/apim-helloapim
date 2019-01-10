@@ -163,22 +163,26 @@ function build_apim_json() {
   local _sshpass="sshpass -p $2"
   local _sshparam="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
   local _apim_json="${local_path}/src/asset/apim/apim.json"
+  local _md5sum="md5"
+  command -v ${_md5sum} >/dev/null 2>&1 || _md5sum = "md5sum"
+  local _uuid=$(date | ${_md5sum} | head -c8)
+  local _tmp_json="apim${_uuid}.json"
 
   if [ ! -f "${_apim_json}" ]; then
     log_err_exit "Not found \"./src/asset/apim/apim.json\"."
   fi
 
   exec_err ${_sshpass} scp ${_sshparam} \
-    $_apim_json admin@${_ip}:/share/Public/apim.json
+    $_apim_json admin@${_ip}:/share/Public/${_tmp_json}
 
   exec_err ${_sshpass} ssh ${_sshparam} \
-    -t admin@${_ip} "cd /share/Public/ && /usr/local/apim/bin/sr-cli encrypt apim.json"
+    -t admin@${_ip} "cd /share/Public/ && /usr/local/apim/bin/sr-cli encrypt ${_tmp_json} && cat ${_tmp_json}"
 
   exec_err ${_sshpass} scp ${_sshparam} \
-    admin@${_ip}:/share/Public/apim.json.enc ${WORKING_QPKG_ROOT}/shared/
+    admin@${_ip}:/share/Public/${_tmp_json}.enc ${WORKING_QPKG_ROOT}/shared/apim.json.enc
 
   exec_err ${_sshpass} ssh ${_sshparam} \
-    -t admin@${_ip} "rm /share/Public/apim.json && rm /share/Public/apim.json.enc"
+    -t admin@${_ip} "rm /share/Public/${_tmp_json} && rm /share/Public/${_tmp_json}.enc"
 
   log "[ $FUNCNAME $@ ] done ..."
 }
