@@ -1,28 +1,36 @@
 {
+    "api_ver": "1.0.0",
     "name": "helloqpkg",
-    "applicaton": {
-        "my_acl_group": "helloqpkg-group",
-        "apis": [
-            {
-            "uri_prefix": "/helloqpkg/v1",
-            "api_url": "/v1",
-            "api_port": 13000,
-            "is_allow_qnap": true,
-            "is_allow_3rd_party": false
-            },
-            {
-            "uri_prefix": "/helloqpkg/v1/echo",
-            "api_url": "/v1/echo",
-            "api_port": 130000,
-            "is_allow_qnap": true
-            }
-        ]
-    },
-    "comsumer": [
+    "consumers": [
         {
-            "name": "helloqpkg-webclient",
-            "apikey": "helloqpkg-123",
-            "my_acl_group": "helloqpkg-group"
+            "credential": "key123",
+            "name": "helloqpkg webclient"
+        },
+        {
+            "credential": "key456",
+            "name": "helloqpkg mobile client"
+        }
+    ],
+    "proxys": [
+        {
+            "auth_type": "KEY",
+            "service_port": 13000,
+            "route_prefix": "/helloqpkg/v1",
+            "apidoc_url": "http://127.0.0.1:13000/apidoc/index.yaml",
+            "name": "hello qpkg http api v1",
+            "service_path": "/v1",
+            "health_check_port": 13000,
+            "health_check_path": "/v1/healthcheck"
+        },
+        {
+            "auth_type": "KEY",
+            "service_port": 13000,
+            "route_prefix": "/helloqpkg/v1/echo",
+            "apidoc_url": "http://127.0.0.1:13000/apidoc/index.yaml",
+            "name": "hello qpkg websocket api v1",
+            "service_path": "/v1/echo",
+            "health_check_port": 13000,
+            "health_check_path": "/v1/ws_healthcheck"
         }
     ]
 }
