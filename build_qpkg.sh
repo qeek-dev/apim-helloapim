@@ -71,18 +71,31 @@ function init_qdk_working() {
   log "[ $FUNCNAME $@ ] start ..."
 
   [ ! -d "${WORKING_QPKG_DIST}" ] && exec_err mkdir -p ${WORKING_QPKG_DIST}
+
   # reset the qpkg source workspace folder for building time.
   # prepare for mount in the container.
   rm -rf ${WORKING_QDK_ROOT} >/dev/null 2>&1
   rm -rf ${WORKING_QPKG_ROOT} >/dev/null 2>&1
 
-  # QDK program
+  # make sure always use latest master branch of QDK (support API Manager).
+  if [ ! -d ${WORKING}/qdk_repo ]; then
+    mkdir -p ${WORKING}/qdk_repo
+    git clone https://github.com/qeek-dev/QDK ${WORKING}/qdk_repo
+  else
+    cd ${WORKING}/qdk_repo
+    git reset --hard &>/dev/null
+    git clean -dfx &>/dev/null
+    git checkout master &>/dev/null
+    cd -
+  fi
+
+  # copy latest QDK program to a clean QDK working directory.
   exec_err mkdir -p ${WORKING_QDK_ROOT}
-  exec_err cp -r ${local_path}/QDK/shared/. ${WORKING_QDK_ROOT}/
+  exec_err cp -r ${WORKING}/qdk_repo/shared/. ${WORKING_QDK_ROOT}/
 
   # QPKG template
   exec_err mkdir -p ${WORKING_QPKG_ROOT}
-  exec_err cp -r ${local_path}/QDK/shared/template/. ${WORKING_QPKG_ROOT}/
+  exec_err cp -r ${WORKING}/qdk_repo/shared/template/. ${WORKING_QPKG_ROOT}/
   log "[ $FUNCNAME $@ ] done ..."
 }
 
@@ -286,7 +299,6 @@ function requirements() {
   check_command scp
   check_command sshpass
 
-  git submodule update --init QDK
   # build the qdk docker image
   if [[ "$(docker images -q ${QDK_DOKCER_IMAGE} 2>/dev/null)" == "" ]]; then
     # build stage that make the "qpkg_encrypt" for run time qdk docker.
