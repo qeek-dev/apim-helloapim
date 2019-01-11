@@ -1,4 +1,0 @@
-[submodule "QDK"]
-	path = QDK
-	url = https://github.com/qeek-dev/QDK
-	branch = master
