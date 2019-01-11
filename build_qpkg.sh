@@ -266,13 +266,13 @@ function build_qpkg() {
   local NAS_PASSWD=${3}
   local QPKG_VERSION=${4}
 
+  init_qdk_working
+
   if [[ ${QPKG_VERSION} == "" ]]; then
     QPKG_VERSION=$(dev_version)
   fi
-
   log_info "QPKG_VERSION: ${QPKG_VERSION}"
 
-  init_qdk_working
   build_apim_json "${NAS_IP}" "${NAS_PASSWD}"
   build_source "${CPU_ARCH}"
   compile_qpkg "${CPU_ARCH}" "${QPKG_VERSION}"
@@ -312,9 +312,8 @@ function requirements() {
 function dev_version() {
   cd ${local_path}
   local _core_build_num=`git rev-list HEAD --count`
-  cd ${local_path}/QDK
+  cd ${WORKING_QDK_ROOT}
   local _qdk_build_num=`git rev-list HEAD --count`
-
   local _res="0.${_core_build_num}.${_qdk_build_num}"
   echo $_res
 }
