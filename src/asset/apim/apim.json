@@ -11,7 +11,7 @@
             "name": "helloapim mobile client"
         }
     ],
-    "proxys": [
+    "proxies": [
         {
             "auth_type": "KEY",
             "service_port": 13000,
