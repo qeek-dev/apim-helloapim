@@ -4,7 +4,7 @@
 # QDK in the docker
 QDK_DOCKER_USERNAME=qeekdev
 QDK_DOCKER_NAME=qdk-docker
-QDK_DOCKER_VERSION=2.3.4-apim
+QDK_DOCKER_VERSION=2.3.10-apim
 QDK_DOKCER_IMAGE="${QDK_DOCKER_USERNAME}/${QDK_DOCKER_NAME}:${QDK_DOCKER_VERSION}"
 
 #############################################################################
@@ -215,6 +215,7 @@ function compile_qpkg() {
   local BUILD_DATE=`date +"%Y%m%d%H%M"`
   local CPU_ARCH=$1
   local QPKG_VERSION=${2}
+  local QNAP_CODESIGNING_TOKEN=${3}
   local QPKG_FILE="${QPKG_NAME}_${QPKG_VERSION}_${CPU_ARCH}_${BUILD_DATE}"
   local HOSTDIR=${local_path}
   local CONTAINER_NAME=${QDK_DOCKER_NAME}-`date +%s`
@@ -223,6 +224,7 @@ function compile_qpkg() {
       --rm \
       -e \"TZ=Asia/Taipei\" \
       -u root \
+      -e QNAP_CODESIGNING_TOKEN=${QNAP_CODESIGNING_TOKEN} \
       -w /root \
       -v ${HOSTDIR}:/root/tmp \
       --name=${CONTAINER_NAME}"
@@ -264,7 +266,8 @@ function build_qpkg() {
   local CPU_ARCH=${1}
   local NAS_IP=${2}
   local NAS_PASSWD=${3}
-  local QPKG_VERSION=${4}
+  local SIGNING_TOKEN=${4}
+  local QPKG_VERSION=${5}
 
   init_qdk_working
 
@@ -275,7 +278,7 @@ function build_qpkg() {
 
   build_apim_json "${NAS_IP}" "${NAS_PASSWD}"
   build_source "${CPU_ARCH}"
-  compile_qpkg "${CPU_ARCH}" "${QPKG_VERSION}"
+  compile_qpkg "${CPU_ARCH}" "${QPKG_VERSION}" "${SIGNING_TOKEN}"
 
   if [ ! -z "${NAS_IP}" ]; then
     # get last qpkg file name by modify time.
@@ -301,10 +304,16 @@ function requirements() {
 
   # build the qdk docker image
   if [[ "$(docker images -q ${QDK_DOKCER_IMAGE} 2>/dev/null)" == "" ]]; then
+    if [ ! -d "QDK" ]; then
+      # clone official QDK to build "qpkg_encrypt"
+      exec_err git clone https://github.com/qnap-dev/QDK
+    fi
     # build stage that make the "qpkg_encrypt" for run time qdk docker.
-    docker build -t ${QDK_DOKCER_IMAGE}.buildstage -f ./qdk-docker/Dockerfile.build-stage .
+    exec_err docker build -t ${QDK_DOKCER_IMAGE}.buildstage -f ./qdk-docker/Dockerfile.build-stage .
     # the run time qdk docker image
-    docker build -t ${QDK_DOKCER_IMAGE} -f ./qdk-docker/Dockerfile.run-time .
+    exec_err docker build -t ${QDK_DOKCER_IMAGE} -f ./qdk-docker/Dockerfile.run-time .
+    [ -d "QDK" ] && rm -rf QDK
+    # compile_qpkg() will clone the another QDK (support api manager) to pack qpkg
   fi
 }
 ##################################################################################################
@@ -323,10 +332,10 @@ log "*** build qpkg ${1} start. ***"
 if [ $# -eq 0 ]; then
   echo ""
   echo ""
-  echo "./${0} {CPU_ARCH} {NAS_IP} {NAS_PASSWD} {QPKG_VERSION} "
-  echo "ex: ./${0} x86_64 192.168.0.10 passw0rd 0.1"
+  echo "./${0} {CPU_ARCH} {NAS_IP} {NAS_PASSWD} {CODESIGNING_TOKEN} {QPKG_VERSION}"
+  echo "ex: ./${0} x86_64 192.168.0.10 passw0rd 3c70dd0d50f34ac082ba6349dfd01111 0.1"
   echo "  if no {QPKG_VERSION}, will generate a dev verison number. "
-  echo "ex: ./${0} x86_64 192.168.0.10 passw0rd"
+  echo "ex: ./${0} x86_64 192.168.0.10 passw0rd 3c70dd0d50f34ac082ba6349dfd01111"
   echo "CPU_ARCH: x86_64, arm_64, arm-x41, arm-x31 ..."
   echo ""
   echo ""
@@ -335,7 +344,7 @@ fi
 
 
 requirements
-build_qpkg "${1}" "${2}" "${3}" "${4}"
+build_qpkg "${1}" "${2}" "${3}" "${4}" "${5}"
 
 log "*** build qpkg ${1} done. ***"
 
