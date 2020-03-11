@@ -1,11 +1,11 @@
-FROM qeekdev/qdk-docker:2.3.4-apim.buildstage as build-stage
+FROM qeekdev/qdk-docker:2.3.10-apim.buildstage as build-stage
 FROM ubuntu:18.04
 
-COPY --from=build-stage /usr/local/QDK/bin/qpkg_encrypt /usr/bin/
+COPY --from=build-stage /usr/share/QDK/bin/qpkg_encrypt /usr/bin/
 
 # install QDK requirement package: rsync
 RUN apt-get update && \
-    apt-get install -y rsync fakeroot && \
+    apt-get install -y rsync fakeroot sqlite python curl python openssl bsdmainutils && \
     apt-get remove --purge -yq && \
     apt-get autoclean -y && \
     apt-get autoremove -y && \

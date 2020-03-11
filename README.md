@@ -1,5 +1,5 @@
 # Hello APIM 
-This is a demo qpkg that how to integrate the API Manager.
+This is a demo qpkg that how to integrate the API Manager. Use QDK (Support API Manager) to pack this demo qpkg.
 
 # Prepare
 * A unix base build machine, example: Ubuntu / Mac.
@@ -9,15 +9,19 @@ This is a demo qpkg that how to integrate the API Manager.
 # How to build qpkg and install to NAS.
 Run the `./build_qpkg.sh` script in the build machine. It will build the `hello-apim` qpkg and install it to the NAS.
 ```
-./build_qpkg.sh {CPU_ARCH} {QPKG_VERSION} {NAS_IP} {NAS_PASSWD}
-ex: ./build_qpkg.sh x86_64 0.1 192.168.0.10 passw0rd
+./build_qpkg.sh {CPU_ARCH} {NAS_IP} {NAS_PASSWD} {CODESIGNING_TOKEN} {QPKG_VERSION}
+ex: ./build_qpkg.sh x86_64 192.168.0.10 passw0rd 3c70dd0d50f34ac082ba6349dfd01111
 CPU_ARCH: x86_64, arm_64, arm-x41, arm-x31 ...
+```
+
+code signing token generate by QDK scripts.
+```
+$ working/QDK/scripts/codesigning_login.sh
 ```
 
 # Directory layout
 ```
 .
-|-- QDK                         (git submodule of QDK, The version that support API Manager)
 |-- README.md                   (Readme document)
 |-- build_qpkg.sh               (QPKG build script of Hello APIM)
 |-- qdk-docker                  (Docker image source, The environment could run the QDK)
@@ -30,10 +34,11 @@ CPU_ARCH: x86_64, arm_64, arm-x41, arm-x31 ...
 |   |   |   `-- apim.json       (Registered the Hello APIM backend Http/WebSocket API by this file)
 |   |   `-- qpkg                (QDK files for Hello APIM)
 |   |       |-- icons
+|   |       |-- buld_sign.csv   (Protection file list)
 |   |       |-- package_routines
 |   |       `-- qpkg.cfg
 |   |-- init.d
-|   |   `-- hello-apim.sh        (QPKG service script)
+|   |   `-- hello-apim.sh       (QPKG service script)
 |   |-- server                  (Backend source code)
 |   |   |-- go.mod
 |   |   |-- go.sum
