@@ -1,36 +1,16 @@
 {
-    "api_ver": "1.0.0",
     "name": "helloapim",
-    "consumers": [
+    "api_ver": "1.0.0",
+    "apis": [
         {
-            "credential": "key123",
-            "name": "helloapim webclient"
+            "auth_plugin": "key-auth",
+            "service_port": 13000,
+            "base_path": "/v1",
         },
         {
-            "credential": "key456",
-            "name": "helloapim mobile client"
-        }
-    ],
-    "proxies": [
-        {
-            "auth_type": "KEY",
+            "auth_plugin": "key-auth",
             "service_port": 13000,
-            "route_prefix": "/helloapim/v1",
-            "apidoc_url": "http://127.0.0.1:13000/apidoc/index.yaml",
-            "name": "hello apim http api v1",
-            "service_path": "/v1",
-            "health_check_port": 13000,
-            "health_check_path": "/v1/healthcheck"
-        },
-        {
-            "auth_type": "KEY",
-            "service_port": 13000,
-            "route_prefix": "/helloapim/v1/echo",
-            "apidoc_url": "http://127.0.0.1:13000/apidoc/index.yaml",
-            "name": "hello apim websocket api v1",
-            "service_path": "/v1/echo",
-            "health_check_port": 13000,
-            "health_check_path": "/v1/ws_healthcheck"
+            "base_path": "/v1/echo",
         }
     ]
 }
