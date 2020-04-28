@@ -3,12 +3,12 @@
     "api_ver": "1.0.0",
     "apis": [
         {
-            "auth_plugin": "key-auth",
+            "auth_plugin": "qvrpro-license",
             "service_port": 13000,
             "base_path": "/v1",
         },
         {
-            "auth_plugin": "key-auth",
+            "auth_plugin": "qvrpro-license",
             "service_port": 13000,
             "base_path": "/v1/echo",
         }
