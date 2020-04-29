@@ -4,10 +4,25 @@
 <title> APIM example QPKG - helloapim </title>
 <script type="text/javascript" src="//code.jquery.com/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" charset="utf-8">
+    function getCookie(cname) {
+      var name = cname + "=";
+      var decodedCookie = decodeURIComponent(document.cookie);
+      var ca = decodedCookie.split(';');
+      for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return "";
+    }    
     $(document).ready(function(){
         var input = document.getElementById("input");
         var ws;
-        var apim_key='x-apim-key=key123'
+        var apim_key='x-qnap-sid='+getCookie('NAS_SID')
         var print = function(message) {
             s = (new Date()).toLocaleString()
             $('#log').append('<br>' + s + ' '+ message );
