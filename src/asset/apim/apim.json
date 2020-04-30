@@ -5,12 +5,12 @@
         {
             "auth_plugin": "qvrpro-license",
             "port": 13000,
-            "base_path": "/v1"
+            "base_path": "/v1/echo"
         },
         {
             "auth_plugin": "qvrpro-license",
             "port": 13000,
-            "base_path": "/v1/echo"
+            "base_path": "/v1/people"
         }
     ]
 }
