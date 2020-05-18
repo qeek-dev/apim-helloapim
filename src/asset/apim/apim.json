@@ -4,13 +4,15 @@
     "apis": [
         {
             "auth_plugin": "qvrpro-license",
-            "port": 13000,
-            "base_path": "/v1/echo"
+            "route_path": "/helloapim/v1/echo",
+            "service_port": 13000,
+            "service_path": "/v1/echo"
         },
         {
             "auth_plugin": "qvrpro-license",
-            "port": 13000,
-            "base_path": "/v1/people"
+            "route_path": "/helloapim/v1/people",
+            "service_port": 13000,
+            "service_path": "/v1/people"
         }
     ]
 }
