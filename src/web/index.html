@@ -22,7 +22,7 @@
     $(document).ready(function(){
         var input = document.getElementById("input");
         var ws;
-        var apim_key='x-qnap-sid='+getCookie('NAS_SID')
+        // var apim_key='x-qnap-sid='+getCookie('NAS_SID')
         var print = function(message) {
             s = (new Date()).toLocaleString()
             $('#log').append('<br>' + s + ' '+ message );
@@ -39,7 +39,7 @@
                 ws_protocol = 'wss:'
             else
                 ws_protocol = 'ws:'
-            ws = new WebSocket(ws_protocol + '//' + document.domain + ':' + port + '/helloapim/v1/echo?' + apim_key);
+            ws = new WebSocket(ws_protocol + '//' + document.domain + ':' + port + '/helloapim/v1/echo');
             ws.onopen = function(evt) {
                 print("Websocket OPEN");
             }
@@ -73,7 +73,7 @@
 
         $("#getPeople").click(function() {
             $.ajax({
-                url: location.protocol + '//' + document.domain + ':' + port + '/helloapim/v1/people/1?' + apim_key,
+                url: location.protocol + '//' + document.domain + ':' + port + '/helloapim/v1/people/1',
                 type: "GET",
                 crossDomain: true,
                 headers: {
