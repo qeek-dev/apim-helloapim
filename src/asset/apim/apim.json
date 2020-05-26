@@ -13,6 +13,12 @@
             "route_path": "/helloapim/v1/people",
             "service_port": 13000,
             "service_path": "/v1/people"
+        },
+        {
+            "auth_plugin": "qvrpro-license",
+            "route_path": "/helloapim/v1/person",
+            "service_port": 13000,
+            "service_path": "/v1/people"
         }
     ]
 }

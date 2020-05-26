@@ -89,6 +89,25 @@
                 }
             });
         });
+
+        $("#getPerson").click(function() {
+            $.ajax({
+                url: location.protocol + '//' + document.domain + ':' + port + '/helloapim/v1/person/1',
+                type: "GET",
+                crossDomain: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                success: function (data, status) {
+                    print("Status: " + status + "\n");
+                    print("ID: " + data.id + "\n");
+                    print("Name: " + data.firstname + " " + data.lastname + "\n");
+                },
+                error: function (xhr, status) {
+                    alert("error");
+                }
+            });
+        });
     });
 
     function clog() {$('#log').empty();}
@@ -107,6 +126,8 @@ You can change the message and send multiple times.
 <p>Click "Get first people" to get the first people information by HTTP API from server
 <p>
 <button id="getPeople">Get First People</button>
+<p></p>
+<button id="getPerson">Get First Person</button>
 <p></p>
 <button onclick="clog()">Clear Message</button>
 <div id="log"></div>
